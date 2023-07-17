@@ -4,7 +4,7 @@ import { ElMessage } from 'element-plus'
 const baseURL: any = import.meta.env.VITE_BASE_URL
 
 const service: AxiosInstance = axios.create({
-  baseURL: baseURL,
+  // baseURL: baseURL,
   timeout: 5000
 })
 
@@ -18,7 +18,6 @@ service.interceptors.request.use(
     return config
   },
   (error: AxiosError) => {
-    console.log(error) // for debug
     return Promise.reject(error)
   }
 )
@@ -26,7 +25,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data
-    if (res.code === 200) {
+    if (res.code === 0) {
       return res
     } else {
       showError(res)
@@ -34,7 +33,6 @@ service.interceptors.response.use(
     }
   },
   (error: AxiosError)=> {
-    console.log(error) // for debug
     const badMessage: any = error.message || error
     const code = parseInt(badMessage.toString().replace('Error: Request failed with status code ', ''))
     showError({ code, message: badMessage })

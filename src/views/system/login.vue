@@ -14,7 +14,7 @@
         <el-form class="form">
           <el-input
               size="large"
-              v-model="form.name"
+              v-model="form.userName"
               :placeholder="$t('message.system.userName')"
               type="text"
               maxlength="50"
@@ -41,7 +41,7 @@
             </template>
           </el-input>
 
-          <el-button type="primary" :loading="form.loading" @click="submit" style="width: 100%;" size="medium">
+          <el-button type="primary" :loading="form.loading" @click="submit" style="width: 100%;" size="default">
             {{ $t('message.system.login') }}
           </el-button>
         </el-form>
@@ -73,8 +73,8 @@ export default defineComponent({
     const router = useRouter()
     const route = useRoute()
     const form = reactive({
-      name: 'admin',
-      password: '123456',
+      userName: '',
+      password: '',
       loading: false
     })
     const passwordType = ref('password')
@@ -83,7 +83,7 @@ export default defineComponent({
     }
     const checkForm = () => {
       return new Promise((resolve, reject) => {
-        if (form.name === '') {
+        if (form.userName === '') {
           ElMessage.warning({
             message: '用户名不能为空',
             type: 'warning'
@@ -105,7 +105,7 @@ export default defineComponent({
       .then(() => {
         form.loading = true
         let params = {
-          name: form.name,
+          userName: form.userName,
           password: form.password
         }
         store.dispatch('user/login', params)

@@ -34,10 +34,12 @@ const actions = {
     return new Promise((resolve, reject) => {
       loginApi(params)
       .then(res => {
-        commit('tokenChange', res.data.token)
-        dispatch('getInfo', { token: res.data.token })
+        console.log(res);
+        const { userTokenInfo } = res.data;
+        commit('tokenChange', userTokenInfo.token)
+        dispatch('getInfo', { token: userTokenInfo.toke })
         .then(infoRes => {
-          resolve(res.data.token)
+          resolve(userTokenInfo.toke)
         })
       }).catch(err => {
         reject(err)
