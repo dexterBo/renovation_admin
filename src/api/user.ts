@@ -9,22 +9,11 @@ export function loginApi(data: object) {
   })
 }
 
-/** 获取用户信息Api */
-export function getInfoApi(data: object) {
-  return request({
-    url: '/user/info',
-    method: 'post',
-    baseURL: '/mock',
-    data
-  })
-}
-
 /** 退出登录Api */
 export function loginOutApi() {
   return request({
-    url: '/user/out',
+    url: 'api/admin/out',
     method: 'post',
-    baseURL: '/mock'
   })
 }
 

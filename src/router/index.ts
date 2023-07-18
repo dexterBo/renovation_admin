@@ -15,8 +15,11 @@ import { reactive } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import store from '@/store'
 import i18n from '@/locale'
+import { createNameComponent } from './createNode'
 import NProgress from '@/utils/system/nprogress'
-import { changeTitle } from '@/utils/system/title'
+import Layout from '@/layout/index.vue'
+import { shallowRef } from 'vue'
+
 
 NProgress.configure({ showSpinner: false })
 
@@ -29,7 +32,20 @@ import System from './modules/system'
  * @detail 针对modules的任何修改，均会同步至菜单级别，记住，是针对变量名为：moduels的修改
  **/
 let modules = reactive([
-  ...System
+  ...System,
+  {
+    path: '/color',
+    component: shallowRef(Layout),
+    redirect: '/color',
+    meta: { title: '色彩管理', icon: 'sfont system-home' },
+    children: [
+      {
+        path: 'color',
+        component: createNameComponent(() => import('@/views/main/color/index.vue')),
+        meta: { title: '色彩管理', icon: 'sfont system-home', hideClose: true }
+      }
+    ]
+  }
 ])
 
 const { t } = i18n.global
@@ -46,23 +62,20 @@ const whiteList = ['/login']
 router.beforeEach((to, _from, next) => {
   NProgress.start();
   if (store.state.user.token) {
-    to.meta.title ? (changeTitle(to.meta.title)) : "" // 动态title
     if (to.path === '/login') {
       next('/')
       return
     }
     next()
   } else if (whiteList.includes(to.path)) {
-    to.meta.title ? (changeTitle(to.meta.title)) : "" // 动态title
     next()
   } else {
     next("/login"); // 全部重定向到登录页
-    to.meta.title ? (changeTitle(to.meta.title)) : "" // 动态title
   }
 });
 
 // 路由跳转后的监听操作
-router.afterEach((to, _from) => {
+router.afterEach((to: any, _from) => {
   const keepAliveComponentsName = store.getters['keepAlive/keepAliveComponentsName'] || []
   const name = to.matched[to.matched.length - 1].components.default.name
   if (to.meta && to.meta.cache && name && !keepAliveComponentsName.includes(name)) {

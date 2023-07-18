@@ -17,11 +17,10 @@
       <el-header v-show="!contentFullScreen">
         <Header />
       </el-header>
-      <Tabs v-show="showTabs" />
       <el-main>
         <router-view v-slot="{ Component, route }">
           <transition
-            :name="route.meta.transition || 'fade-transform'"
+            :name="String(route.meta.transition) || 'fade-transform'"
             mode="out-in"
           >
             <keep-alive
@@ -46,13 +45,11 @@ import { useEventListener } from "@vueuse/core";
 import Menu from "./Menu/index.vue";
 import Logo from "./Logo/index.vue";
 import Header from "./Header/index.vue";
-import Tabs from "./Tabs/index.vue";
 export default defineComponent({
   components: {
     Menu,
     Logo,
     Header,
-    Tabs,
   },
   setup() {
     const store = useStore();

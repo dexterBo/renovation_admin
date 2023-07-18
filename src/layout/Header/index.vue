@@ -5,17 +5,8 @@
       <div class="menu-icon" @click="opendStateChange">
         <i class="sfont head-fold" :class="isCollapse ? 'system-s-unfold' : 'system-s-fold'"></i>
       </div>
-      <Breadcrumb />
     </div>
     <div class="right-box">
-      <!-- 快捷功能按钮 -->
-      <div class="function-list">
-        <div class="function-list-item hidden-sm-and-down"><Full-screen /></div>
-        <div class="function-list-item"><Word /></div>
-        <div class="function-list-item"><SizeChange /></div>
-        <div class="function-list-item hidden-sm-and-down"><Theme /></div>
-        <div class="function-list-item hidden-sm-and-down"><Github /></div>
-      </div>
       <!-- 用户信息 -->
       <div class="user-info">
         <el-dropdown>
@@ -25,13 +16,11 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item @click="showPasswordLayer">{{ $t('message.system.changePassword') }}</el-dropdown-item>
-              <el-dropdown-item @click="loginOut">{{ $t('message.system.loginOut') }}</el-dropdown-item>
+              <el-dropdown-item @click="loginOut">退出登陆</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
       </div>
-      <password-layer :layer="layer" v-if="layer.show" />
     </div>
   </header>
 </template>
@@ -40,27 +29,9 @@
 import { defineComponent, computed, reactive } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter, useRoute } from 'vue-router'
-import FullScreen from './functionList/fullscreen.vue'
-import Word from './functionList/word.vue'
-import SizeChange from './functionList/sizeChange.vue'
-import Github from './functionList/github.vue'
-import Theme from './functionList/theme.vue'
-import Breadcrumb from './Breadcrumb.vue'
-import PasswordLayer from './passwordLayer.vue'
 export default defineComponent({
-  components: {
-    FullScreen,
-    Breadcrumb,
-    Word,
-    SizeChange,
-    Github,
-    Theme,
-    PasswordLayer
-  },
   setup() {
     const store = useStore()
-    const router = useRouter()
-    const route = useRoute()
     const layer = reactive({
       show: false,
       showButton: true
@@ -75,16 +46,11 @@ export default defineComponent({
     const loginOut = () => {
       store.dispatch('user/loginOut')
     }
-    
-    const showPasswordLayer = () => {
-      layer.show = true
-    }
     return {
       isCollapse,
       layer,
       opendStateChange,
       loginOut,
-      showPasswordLayer
     }
   }
 })
