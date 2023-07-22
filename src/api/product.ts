@@ -1,9 +1,9 @@
 import request from '@/utils/system/request'
 
-// 获取色彩列表
-export function getColorList(data: object) {
+// 获取产品列表
+export function getProductList(data: object) {
   return request({
-    url: '/api/admin/queryColourPage',
+    url: '/api/admin/queryProdPage',
     method: 'post',
     data
   })
@@ -12,7 +12,7 @@ export function getColorList(data: object) {
 // 添加色彩
 export function addOrEdit(data: object) {
   return request({
-    url: '/api/admin/addOrEditColour',
+    url: '/api/admin/addOrEditProd',
     method: 'post',
     data
   })

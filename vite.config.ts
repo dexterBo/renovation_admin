@@ -16,10 +16,6 @@ const pathResolve = (dir: string): any => {
   return resolve(__dirname, ".", dir)
 }
 
-const alias: Record<string, string> = {
-  '@': pathResolve("src")
-}
-
 /** 
  * @description-en vite document address
  * @description-cn vite官网
@@ -29,7 +25,9 @@ export default ({ command }: ConfigEnv): UserConfigExport => {
   return {
     base: './',
     resolve: {
-      alias
+      alias: {
+        '@': resolve(__dirname, './src'),
+      },
     },
     server: {
       port: 3001,

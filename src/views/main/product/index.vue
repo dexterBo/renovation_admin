@@ -5,16 +5,11 @@
         <el-button type="primary" :icon="Plus" @click="handleAdd">新增</el-button>
       </div>
       <div class="layout-container-form-search">
-        <el-input
-          v-model="query.name"
-          placeholder="请输入色彩名称查询"
-        ></el-input>
         <el-button
           type="primary"
-          :icon="Search"
           class="search-btn"
-          @click="getTableData(true)"
-          >查询</el-button
+          @click="handleImport"
+          >导入</el-button
         >
       </div>
     </div>
@@ -29,15 +24,25 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column prop="id" label="序号" align="center" width="80" />
-        <el-table-column prop="colourImgUrl" label="色彩图片" align="center" >
+        <el-table-column prop="prodImgUrl" label="产品主图" align="center" >
           <template #default="scope">
             <el-image width="100" height="100" :src="scope.row.colourImgUrl"></el-image>
           </template>
         </el-table-column>
-        <el-table-column prop="colourCode" label="色彩编号" align="center" />
-        <el-table-column prop="colourName" label="色彩名称" align="center" />
-        <el-table-column prop="colourInfo" label="色彩介绍" align="center" />
+        <el-table-column prop="prodName" label="产品名称" align="center" />
+        <el-table-column prop="jumpType" label="跳转方式" align="center" />
+        <el-table-column prop="prodCode" label="产品编码" align="center" />
         <el-table-column prop="createTime" label="创建时间" align="center" />
+        <el-table-column
+          label="产品二维码"
+          align="center"
+          fixed="right"
+          width="200"
+        >
+          <template #default="scope">
+            <el-button type="text" @click="handleDownload(scope.row)">下载</el-button>
+          </template>
+        </el-table-column>
         <el-table-column
           label="操作"
           align="center"
@@ -46,14 +51,6 @@
         >
           <template #default="scope">
             <el-button @click="handleEdit(scope.row)">编辑</el-button>
-            <!-- <el-popconfirm
-              title="是否确认删除"
-              @confirm="handleDel([scope.row])"
-            >
-              <template #reference>
-                <el-button type="danger">删除</el-button>
-              </template>
-            </el-popconfirm> -->
           </template>
         </el-table-column>
       </Table>
@@ -65,7 +62,7 @@
 <script lang="ts">
 import { defineComponent, ref, reactive } from "vue";
 import { Page } from "@/components/table/type";
-import { getColorList } from "@/api/color";
+import { getProductList } from "@/api/product";
 import { LayerInterface } from "@/components/layer/index.vue";
 import Layer from "./layer.vue";
 import Table from "@/components/table/index.vue";
@@ -111,7 +108,7 @@ export default defineComponent({
         ...query
       }
       try {
-        const result:any = await getColorList(params);
+        const result:any = await getProductList(params);
         tableData.value = result?.page?.records
         page.total = Number(result?.page?.total);
         page.index = result?.page?.current;
@@ -124,34 +121,24 @@ export default defineComponent({
         loading.value = false;
       }
     }
-     // 删除功能
-    // const handleDel = (data: object[]) => {
-    //   let params = {
-    //     ids: data
-    //       .map((e: any) => {
-    //         return e.id;
-    //       })
-    //       .join(","),
-    //   };
-    //   del(params).then((res) => {
-    //     ElMessage({
-    //       type: "success",
-    //       message: "删除成功",
-    //     });
-    //     getTableData(tableData.value.length === 1 ? true : false);
-    //   });
-    // }
+
+    const handleDownload = (row: any) => {
+      console.log(row.prodQrcodeUrl);
+    }
     // 新增弹窗功能
     const handleAdd = () => {
-      layer.title = "新增色彩";
+      layer.title = "新增产品";
       layer.show = true;
       delete layer.row;
     }
     // 编辑弹窗功能
     const handleEdit = (row: any) => {
-      layer.title = "编辑色彩";
+      layer.title = "编辑产品";
       layer.row = row;
       layer.show = true;
+    }
+    const handleImport = () => {
+
     }
     getTableData(true)
     return {
@@ -166,9 +153,10 @@ export default defineComponent({
       layer,
       handleSelectionChange,
       getTableData,
-      // handleDel,
+      handleDownload,
       handleAdd,
       handleEdit,
+      handleImport,
     };
   }
 });

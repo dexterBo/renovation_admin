@@ -14,7 +14,6 @@
 import { reactive } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import store from '@/store'
-import i18n from '@/locale'
 import { createNameComponent } from './createNode'
 import NProgress from '@/utils/system/nprogress'
 import Layout from '@/layout/index.vue'
@@ -23,8 +22,6 @@ import { shallowRef } from 'vue'
 
 NProgress.configure({ showSpinner: false })
 
-// 引入不需要权限的modules
-import System from './modules/system'
 
 /** 
  * @name 初始化必须要的路由
@@ -32,9 +29,8 @@ import System from './modules/system'
  * @detail 针对modules的任何修改，均会同步至菜单级别，记住，是针对变量名为：moduels的修改
  **/
 let modules = reactive([
-  ...System,
   {
-    path: '/color',
+    path: '/',
     component: shallowRef(Layout),
     redirect: '/color',
     meta: { title: '色彩管理', icon: 'sfont system-home' },
@@ -45,10 +41,86 @@ let modules = reactive([
         meta: { title: '色彩管理', icon: 'sfont system-home', hideClose: true }
       }
     ]
-  }
+  },
+  {
+    path: '/product',
+    component: shallowRef(Layout),
+    redirect: '/product',
+    meta: { title: '产品管理', icon: 'sfont system-home' },
+    children: [
+      {
+        path: 'product',
+        component: createNameComponent(() => import('@/views/main/product/index.vue')),
+        meta: { title: '产品管理', icon: 'sfont system-home', hideClose: true }
+      }
+    ]
+  },
+  {
+    path: '/authorize',
+    component: shallowRef(Layout),
+    redirect: '/authorize',
+    meta: { title: '授权管理', icon: 'sfont system-home' },
+    children: [
+      {
+        path: 'authorize',
+        component: createNameComponent(() => import('@/views/main/authorize/index.vue')),
+        meta: { title: '授权管理', icon: 'sfont system-home', hideClose: true }
+      }
+    ]
+  },
+  {
+    path: '/client',
+    component: shallowRef(Layout),
+    redirect: '/client',
+    meta: { title: '授权管理', icon: 'sfont system-home' },
+    children: [
+      {
+        path: 'client',
+        component: createNameComponent(() => import('@/views/main/client/index.vue')),
+        meta: { title: '客户管理', icon: 'sfont system-home', hideClose: true }
+      }
+    ]
+  },
+  {
+    path: '/login',
+    component: createNameComponent(() => import('@/views/system/login.vue')),
+    hideMenu: true,
+    meta: { title: '登录', hideTabs: true }
+  },
+  {
+    path: '/system',
+    component: Layout,
+    redirect: '/404',
+    hideMenu: true,
+    meta: { title: 'message.menu.system.name' },
+    children: [
+      {
+        path: '/404',
+        component: createNameComponent(() => import('@/views/system/404.vue')),
+        meta: { title: 'message.menu.system.404', hideTabs: true }
+      },
+      {
+        path: '/401',
+        component: createNameComponent(() => import('@/views/system/401.vue')),
+        meta: { title: 'message.menu.system.401', hideTabs: true }
+      },
+      {
+        path: '/redirect/:path(.*)',
+        component: createNameComponent(() => import('@/views/system/redirect.vue')),
+        meta: { title: 'message.menu.system.redirect', hideTabs: true }
+      }
+    ]
+  },
+  {
+    // 找不到路由重定向到404页面
+    path: "/:pathMatch(.*)",
+    component: Layout,
+    redirect: "/404",
+    hideMenu: true,
+    meta: { title: '' },
+    children: []
+  },
 ])
-
-const { t } = i18n.global
 
 const router = createRouter({
   history: createWebHashHistory(),

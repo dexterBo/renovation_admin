@@ -3,61 +3,46 @@
     <div class="layout-container-form flex space-between">
       <div class="layout-container-form-handle">
         <el-button type="primary" :icon="Plus" @click="handleAdd">新增</el-button>
+        <div class="search">
+          <el-input
+            style="width: 200px"
+            v-model="query.name"
+            placeholder="请输入姓名或电话号码查询"
+          ></el-input>
+          <el-button
+            type="primary"
+            :icon="Search"
+            class="search-btn"
+            @click="getTableData(true)"
+            >查询</el-button
+          >
+        </div>
       </div>
       <div class="layout-container-form-search">
-        <el-input
-          v-model="query.name"
-          placeholder="请输入色彩名称查询"
-        ></el-input>
-        <el-button
-          type="primary"
-          :icon="Search"
-          class="search-btn"
-          @click="getTableData(true)"
-          >查询</el-button
-        >
+        <el-button type="primary" class="search-btn" @click="handleImport">导入</el-button>
       </div>
     </div>
     <div class="layout-container-table">
-      <Table
-        ref="table"
-        v-model:page="page"
-        v-loading="loading"
-        :showSelection="true"
-        :data="tableData"
-        @getTableData="getTableData"
-        @selection-change="handleSelectionChange"
-      >
+      <Table ref="table" v-model:page="page" v-loading="loading" :showSelection="true" :data="tableData"
+        @getTableData="getTableData" @selection-change="handleSelectionChange">
         <el-table-column prop="id" label="序号" align="center" width="80" />
-        <el-table-column prop="colourImgUrl" label="色彩图片" align="center" >
+        <el-table-column prop="custName" label="客户姓名" align="center" />
+        <el-table-column prop="custPhone" label="联系电话" align="center" />
+        <el-table-column prop="custAddr" label="地址" align="center" />
+        <el-table-column prop="prodName" label="使用产品" align="center" />
+        <el-table-column prop="createTime" label="创建时间" align="center" />
+        <el-table-column label="质保卡" align="center" fixed="right" width="200">
           <template #default="scope">
-            <el-image width="100" height="100" :src="scope.row.colourImgUrl"></el-image>
+            <el-button :disabled="!scope.row.qualityAssuranceCard" type="text" @click="handleDownload(scope.row)">下载</el-button>
           </template>
         </el-table-column>
-        <el-table-column prop="colourCode" label="色彩编号" align="center" />
-        <el-table-column prop="colourName" label="色彩名称" align="center" />
-        <el-table-column prop="colourInfo" label="色彩介绍" align="center" />
-        <el-table-column prop="createTime" label="创建时间" align="center" />
-        <el-table-column
-          label="操作"
-          align="center"
-          fixed="right"
-          width="200"
-        >
+        <el-table-column label="操作" align="center" fixed="right" width="200">
           <template #default="scope">
-            <el-button @click="handleEdit(scope.row)">编辑</el-button>
-            <!-- <el-popconfirm
-              title="是否确认删除"
-              @confirm="handleDel([scope.row])"
-            >
-              <template #reference>
-                <el-button type="danger">删除</el-button>
-              </template>
-            </el-popconfirm> -->
+            <el-button type="text" @click="handleEdit(scope.row)">修改</el-button>
           </template>
         </el-table-column>
       </Table>
-      <Layer :layer="layer" v-if="layer.show" />
+      <Layer :layer="layer" v-if="layer.show" @getTableData="getTableData(true)" />
     </div>
   </div>
 </template>
@@ -65,7 +50,7 @@
 <script lang="ts">
 import { defineComponent, ref, reactive } from "vue";
 import { Page } from "@/components/table/type";
-import { getColorList } from "@/api/color";
+import { getClientList } from "@/api/client";
 import { LayerInterface } from "@/components/layer/index.vue";
 import Layer from "./layer.vue";
 import Table from "@/components/table/index.vue";
@@ -85,6 +70,7 @@ export default defineComponent({
       show: false,
       title: "新增",
       showButton: true,
+      width: '400px',
     });
     // 分页参数, 供table使用
     const page: Page = reactive({
@@ -111,7 +97,7 @@ export default defineComponent({
         ...query
       }
       try {
-        const result:any = await getColorList(params);
+        const result: any = await getClientList(params);
         tableData.value = result?.page?.records
         page.total = Number(result?.page?.total);
         page.index = result?.page?.current;
@@ -124,34 +110,22 @@ export default defineComponent({
         loading.value = false;
       }
     }
-     // 删除功能
-    // const handleDel = (data: object[]) => {
-    //   let params = {
-    //     ids: data
-    //       .map((e: any) => {
-    //         return e.id;
-    //       })
-    //       .join(","),
-    //   };
-    //   del(params).then((res) => {
-    //     ElMessage({
-    //       type: "success",
-    //       message: "删除成功",
-    //     });
-    //     getTableData(tableData.value.length === 1 ? true : false);
-    //   });
-    // }
-    // 新增弹窗功能
+    const handleDownload = (row: any) => {
+      console.log(row.prodQrcodeUrl);
+    }
     const handleAdd = () => {
-      layer.title = "新增色彩";
+      layer.title = "新增客户";
       layer.show = true;
       delete layer.row;
     }
     // 编辑弹窗功能
     const handleEdit = (row: any) => {
-      layer.title = "编辑色彩";
+      layer.title = "编辑客户";
       layer.row = row;
       layer.show = true;
+    }
+    const handleImport = () => {
+
     }
     getTableData(true)
     return {
@@ -169,6 +143,8 @@ export default defineComponent({
       // handleDel,
       handleAdd,
       handleEdit,
+      handleDownload,
+      handleImport,
     };
   }
 });
@@ -177,5 +153,13 @@ export default defineComponent({
 <style lang="scss" scoped>
 .statusName {
   margin-right: 10px;
+}
+
+.search{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 2px;
+  margin-left: 20px;
 }
 </style>
