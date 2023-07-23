@@ -40,7 +40,11 @@
       <el-table-column prop="createTime" label="申请时间" align="center" width="180" />
       <el-table-column label="操作" align="center" fixed="right" width="180" >
         <template #default="scope">
-          <el-button @click="handlePass(scope.row)">审核通过</el-button>
+          <div v-if="scope.row.state === 0">
+            <el-button type="text" @click="handlePass(scope.row)">审核通过</el-button>
+            <el-button style="color: red" type="text" @click="handleUnPass(scope.row)">拒绝</el-button>
+          </div>
+          <div v-else>已授权</div>
         </template>
       </el-table-column>
     </Table>
@@ -139,6 +143,24 @@ export default defineComponent({
         getTableData(false);
       }
     }
+
+    const handleUnPass = async (row: any) => {
+      try {
+        await pass({id: row.id, state: 2});
+        ElMessage({
+          type: 'success',
+          message: '已拒绝该授权请求'
+        })
+      } catch (error) {
+        ElMessage({
+          type: 'error',
+          message: String(error)
+        })
+      } finally {
+        getTableData(false);
+      }
+    }
+
     const handleImport = () => {
     }
     getTableData(true)
@@ -158,6 +180,7 @@ export default defineComponent({
       handleAdd,
       handlePass,
       handleImport,
+      handleUnPass,
     };
   }
 });

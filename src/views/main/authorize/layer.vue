@@ -22,10 +22,13 @@
         </el-select>
       </el-form-item>
       <el-form-item label="规模（万）" prop="projectScale">
-        <el-input-number :controls="false" class="w220" v-model="ruleForm.projectScale" placeholder="请输入规模（万）"></el-input-number>
+        <el-input-number :controls="false" class="w220" v-model="ruleForm.projectScale"
+          placeholder="请输入规模（万）"></el-input-number>
       </el-form-item>
       <el-form-item label="产品型号（颜色）" prop="colourId">
-        <el-input-number :controls="false" class="w220" v-model="ruleForm.colourId" placeholder="请输入产品型号（颜色）"></el-input-number>
+        <el-select class="w220" v-model="ruleForm.colourId" placeholder="请选择产品型号（颜色）">
+          <el-option v-for="option in options3" :label="option.label" :value="option.value"></el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="项目阶段" prop="projectStage">
         <el-select class="w220" v-model="ruleForm.projectStage" placeholder="请选择项目阶段">
@@ -39,7 +42,7 @@
         <el-input class="w220" v-model="ruleForm.serviceContent" placeholder="请输入项目服务内容"></el-input>
       </el-form-item>
       <el-form-item label="申请授权开始日期" prop="authorizeStartDate">
-        <el-date-picker v-model="ruleForm.authorizeStartDate" type="datetime" placeholder="选择日期时间">
+        <el-date-picker value-format="YYYY-MM-DD" v-model="ruleForm.authorizeStartDate" type="date" placeholder="选择日期时间">
         </el-date-picker>
       </el-form-item>
     </el-form>
@@ -50,6 +53,7 @@
 import { defineComponent, ref, reactive, defineEmits } from 'vue'
 import Layer from '@/components/layer/index.vue'
 import { getAuthorizeList, pass, add } from "@/api/authorize";
+import { getColorList } from "@/api/color";
 import { ElMessage } from 'element-plus'
 import { tr } from 'element-plus/lib/locale';
 export default defineComponent({
@@ -88,8 +92,8 @@ export default defineComponent({
       serviceContent: "",
       authorizeStartDate: "",
     })
-    if(props.layer.row) {
-      ruleForm = reactive({...props.layer.row})
+    if (props.layer.row) {
+      ruleForm = reactive({ ...props.layer.row })
       disable.value = true;
     }
     const rules = {
@@ -98,10 +102,10 @@ export default defineComponent({
       phone: [{ required: true, message: '请输入', trigger: 'blur' }],
       projectName: [{ required: true, message: '请输入', trigger: 'blur' }],
       projectAddr: [{ required: true, message: '请输入', trigger: 'blur' }],
-      useType: [{ required: true, message: '请输入', trigger: 'blur' }],
+      useType: [{ required: true, message: '请选择', trigger: 'change' }],
       projectScale: [{ required: true, message: '请输入', trigger: 'blur' }],
-      colourId: [{ required: true, message: '请输入', trigger: 'blur' }],
-      projectStage: [{ required: true, message: '请输入', trigger: 'blur' }],
+      colourId: [{ required: true, message: '请选择', trigger: 'change' }],
+      projectStage: [{ required: true, message: '请选择', trigger: 'change' }],
       constructionInfo: [{ required: true, message: '请输入', trigger: 'blur' }],
       serviceContent: [{ required: true, message: '请输入', trigger: 'blur' }],
       authorizeStartDate: [{ required: true, message: '请输入', trigger: 'blur' }],
@@ -149,6 +153,17 @@ export default defineComponent({
       value: 'commercialSigning',
     }]
 
+    const options3 = ref<any>([]);
+
+    const getColors = async () => {
+      const result: any = await getColorList({ current: 1, size: 999 });
+      options3.value = result?.page?.records.map((item: any) => ({
+        label: item.colourName,
+        value: item.id
+      }))
+    }
+
+
     const submit = () => {
       form.value.validate((valid: boolean) => {
         if (valid) {
@@ -171,26 +186,7 @@ export default defineComponent({
           ctx.emit('getTableData', true)
         })
     }
-    // 编辑提交事件
-    // const updateForm = (params: object) => {
-    //   update(params)
-    //     .then(res => {
-    //       ElMessage({
-    //         type: 'success',
-    //         message: '编辑成功'
-    //       })
-    //       ctx.emit('getTableData', true)
-    //     })
-    // }
-    // handle the file change
-    const uploadchange = (file: any, fileList: any) => {
-      file2base64(file)
-      uploadDom.value.clearFiles()
-    }
-    const file2base64 = (file: any) => {
-      let imgFile = new FileReader()
-      imgFile.readAsDataURL(file.raw)
-    }
+    getColors();
 
     return {
       disable,
@@ -200,8 +196,9 @@ export default defineComponent({
       form,
       options,
       options2,
-      uploadchange,
-      submit
+      options3,
+      submit,
+      getColors,
     }
   },
 })
@@ -213,7 +210,7 @@ export default defineComponent({
 }
 </style>
 <style>
-.el-input-number .el-input__inner{
+.el-input-number .el-input__inner {
   text-align: left;
 }
 </style>

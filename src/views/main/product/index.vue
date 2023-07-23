@@ -5,56 +5,38 @@
         <el-button type="primary" :icon="Plus" @click="handleAdd">新增</el-button>
       </div>
       <div class="layout-container-form-search">
-        <el-button
-          type="primary"
-          class="search-btn"
-          @click="handleImport"
-          >导入</el-button
-        >
+        <el-button type="primary" class="search-btn" @click="handleImport">导入</el-button>
       </div>
     </div>
     <div class="layout-container-table">
-      <Table
-        ref="table"
-        v-model:page="page"
-        v-loading="loading"
-        :showSelection="true"
-        :data="tableData"
-        @getTableData="getTableData"
-        @selection-change="handleSelectionChange"
-      >
+      <Table ref="table" v-model:page="page" v-loading="loading" :showSelection="true" :data="tableData"
+        @getTableData="getTableData" @selection-change="handleSelectionChange">
         <el-table-column prop="id" label="序号" align="center" width="80" />
-        <el-table-column prop="prodImgUrl" label="产品主图" align="center" >
+        <el-table-column prop="prodImgUrl" label="产品主图" align="center">
           <template #default="scope">
-            <el-image width="100" height="100" :src="scope.row.colourImgUrl"></el-image>
+            <el-image style="width: 100px; height: 100px" :src="scope.row.prodImgUrl"></el-image>
           </template>
         </el-table-column>
         <el-table-column prop="prodName" label="产品名称" align="center" />
-        <el-table-column prop="jumpType" label="跳转方式" align="center" />
+        <el-table-column prop="jumpType" label="跳转方式" align="center">
+          <template #default="scope">
+            {{ scope.row.jumpType === 2 ? '公众号链接' : 'PDF文件' }}
+          </template>
+        </el-table-column>>
         <el-table-column prop="prodCode" label="产品编码" align="center" />
         <el-table-column prop="createTime" label="创建时间" align="center" />
-        <el-table-column
-          label="产品二维码"
-          align="center"
-          fixed="right"
-          width="200"
-        >
+        <el-table-column label="产品二维码" align="center" fixed="right" width="200">
           <template #default="scope">
             <el-button type="text" @click="handleDownload(scope.row)">下载</el-button>
           </template>
         </el-table-column>
-        <el-table-column
-          label="操作"
-          align="center"
-          fixed="right"
-          width="200"
-        >
+        <el-table-column label="操作" align="center" fixed="right" width="200">
           <template #default="scope">
             <el-button @click="handleEdit(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
       </Table>
-      <Layer :layer="layer" v-if="layer.show" />
+      <Layer :layer="layer" @getTableData="getTableData(true)" v-if="layer.show" />
     </div>
   </div>
 </template>
@@ -108,7 +90,7 @@ export default defineComponent({
         ...query
       }
       try {
-        const result:any = await getProductList(params);
+        const result: any = await getProductList(params);
         tableData.value = result?.page?.records
         page.total = Number(result?.page?.total);
         page.index = result?.page?.current;
@@ -123,7 +105,9 @@ export default defineComponent({
     }
 
     const handleDownload = (row: any) => {
-      console.log(row.prodQrcodeUrl);
+      if (row.prodQrcodeUrl) {
+        window.open(row.prodQrcodeUrl)
+      }
     }
     // 新增弹窗功能
     const handleAdd = () => {

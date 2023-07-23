@@ -2,12 +2,12 @@
   <div class="content">
     <el-tabs v-model="activeName">
       <el-tab-pane label="授权管理" name="manage">
-        <Manage></Manage>
       </el-tab-pane>
       <el-tab-pane label="授权申请" name="apply">
-        <Apply></Apply>
       </el-tab-pane>
     </el-tabs>
+    <Manage v-if="activeName === 'manage'"></Manage>
+    <Apply v-else></Apply>
   </div>
 </template>
 <script lang="ts" setup>

@@ -31,7 +31,7 @@
         <el-table-column prop="id" label="序号" align="center" width="80" />
         <el-table-column prop="colourImgUrl" label="色彩图片" align="center" >
           <template #default="scope">
-            <el-image width="100" height="100" :src="scope.row.colourImgUrl"></el-image>
+            <el-image style="width: 100px; height: 100px" :src="scope.row.colourImgUrl"></el-image>
           </template>
         </el-table-column>
         <el-table-column prop="colourCode" label="色彩编号" align="center" />
@@ -46,18 +46,10 @@
         >
           <template #default="scope">
             <el-button @click="handleEdit(scope.row)">编辑</el-button>
-            <!-- <el-popconfirm
-              title="是否确认删除"
-              @confirm="handleDel([scope.row])"
-            >
-              <template #reference>
-                <el-button type="danger">删除</el-button>
-              </template>
-            </el-popconfirm> -->
           </template>
         </el-table-column>
       </Table>
-      <Layer :layer="layer" v-if="layer.show" />
+      <Layer :layer="layer" @getTableData="getTableData(true)" v-if="layer.show" />
     </div>
   </div>
 </template>
