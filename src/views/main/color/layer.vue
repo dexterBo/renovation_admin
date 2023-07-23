@@ -2,7 +2,7 @@
   <Layer :layer="layer" @confirm="submit">
     <el-form :model="ruleForm" :rules="rules" ref="form" label-width="120px" style="margin-right:30px;">
       <el-form-item label="色彩图片：" prop="colourImgUrl">
-        <el-input v-model="ruleForm.colourImgUrl" v-show="false" placeholder="请输上传"></el-input>
+        <el-input v-model="ruleForm.colourImgUrl" v-show="false" placeholder="请上传色彩图片"></el-input>
         <el-upload v-if="!ruleForm.colourImgUrl" :before-upload="beforeUpload" class="upload-demo" action=""
           :auto-upload="true" :limit="1" :show-file-list="false" accept="image/*" ref="uploadDom"
           :http-request="handleFileUpload">
@@ -49,6 +49,7 @@ export default defineComponent({
     }
   },
   setup(props, ctx) {
+    const form = ref();
     let ruleForm = reactive({
       colourCode: "",
       colourImgUrl: "",
@@ -64,26 +65,55 @@ export default defineComponent({
       colourInfo: [{ required: true, message: '请输入色彩介绍', trigger: 'blur' }],
       colourName: [{ required: true, message: '请输入色彩名称', trigger: 'blur' }]
     }
-    return {
-      ruleForm,
-      rules,
+
+        // 新增提交事件
+        const addForm = (params: object) => {
+      addOrEdit(params)
+        .then(res => {
+          ElMessage({
+            type: 'success',
+            message: '新增成功'
+          })
+          props.layer.show = false
+          ctx.emit('getTableData', true)
+        })
     }
-  },
-  methods: {
-    submit() {
-      this.$refs.form.validate((valid: boolean) => {
+    // 编辑提交事件
+    const updateForm = (params: object) => {
+      addOrEdit(params)
+        .then(res => {
+          ElMessage({
+            type: 'success',
+            message: '编辑成功'
+          })
+          props.layer.show = false
+          ctx.emit('getTableData', true)
+        })
+    }
+
+    const submit = () => {
+      form.value.validate((valid: boolean) => {
         if (valid) {
-          let params = this.ruleForm
-          if (this.layer.row) {
-            this.updateForm(params)
+          let params = ruleForm
+          if (props.layer.row) {
+            updateForm(params)
           } else {
-            this.addForm(params)
+            addForm(params)
           }
         } else {
           return false;
         }
       });
-    },
+    }
+
+    return {
+      ruleForm,
+      rules,
+      submit,
+      form,
+    }
+  },
+  methods: {
     beforeUpload(file: any) {
       const isLt2M = file.size / 1024 / 1024 < 2;
       if (!isLt2M) {
@@ -104,30 +134,6 @@ export default defineComponent({
     handleReload() {
       this.ruleForm.colourImgUrl = '';
     },
-    // 新增提交事件
-    addForm(params: object) {
-      addOrEdit(params)
-        .then(res => {
-          this.$message({
-            type: 'success',
-            message: '新增成功'
-          })
-          this.layer.show = false
-          this.$emit('getTableData', true)
-        })
-    },
-    // 编辑提交事件
-    updateForm(params: object) {
-      addOrEdit(params)
-        .then(res => {
-          this.$message({
-            type: 'success',
-            message: '编辑成功'
-          })
-          this.layer.show = false
-          this.$emit('getTableData', false)
-        })
-    }
   }
 })
 </script>
