@@ -3,18 +3,8 @@
     <div class="layout-container-form-handle">
       <el-button type="primary" :icon="Plus" @click="handleAdd">新增</el-button>
       <div class="search">
-        <el-input
-          style="width: 200px"
-          v-model="query.name"
-          placeholder="请输入姓名或电话号码查询"
-        ></el-input>
-        <el-button
-          type="primary"
-          :icon="Search"
-          class="search-btn"
-          @click="getTableData(true)"
-          >查询</el-button
-        >
+        <el-input style="width: 200px" v-model="query.name" placeholder="请输入姓名或电话号码查询"></el-input>
+        <el-button type="primary" :icon="Search" class="search-btn" @click="getTableData(true)">查询</el-button>
       </div>
     </div>
     <div class="layout-container-form-search">
@@ -38,7 +28,7 @@
       <el-table-column prop="serviceContent" label="项目服务内容" align="center" width="180" />
       <el-table-column prop="authorizeStartDate" label="申请授权开始日期" align="center" width="180" />
       <el-table-column prop="createTime" label="申请时间" align="center" width="180" />
-      <el-table-column label="操作" align="center" fixed="right" width="180" >
+      <el-table-column label="操作" align="center" fixed="right" width="180">
         <template #default="scope">
           <div v-if="scope.row.state === 0">
             <el-button type="text" @click="handlePass(scope.row)">审核通过</el-button>
@@ -49,6 +39,22 @@
       </el-table-column>
     </Table>
     <Layer :layer="layer" v-if="layer.show" />
+
+    <el-dialog v-model="visible" title="导入数据" width="30%">
+      <el-upload class="upload-demo" drag :before-upload="beforeUpload" action="" :auto-upload="true" :limit="1"
+        :show-file-list="false" accept="xlsx/*" ref="uploadDom" :http-request="handleFileUpload">
+        <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+        <div class="el-upload__text">
+          拖拽文件至此处或<em>点击上传</em>
+        </div>
+        <template #tip>
+          <div class="el-upload__tip">
+            .xlsx/.xls格式文件,文件大小小于2M
+          </div>
+        </template>
+      </el-upload>
+      <el-button type="text" @click="handleDownloadFile">点击此处下载模版文件</el-button>
+    </el-dialog>
   </div>
 </template>
 
@@ -61,12 +67,14 @@ import Layer from "./layer.vue";
 import Table from "@/components/table/index.vue";
 import { Plus, Delete, Search } from '@element-plus/icons'
 import { ElMessage } from 'element-plus'
+import { downloadFile, importAuthorizeTemp } from "@/api/system";
 export default defineComponent({
   components: {
     Table,
     Layer,
   },
   setup() {
+    const visible = ref(false);
     // 存储搜索用的数据
     const query = reactive({
       name: "",
@@ -126,10 +134,10 @@ export default defineComponent({
       layer.show = true;
       delete layer.row;
     }
-    
+
     const handlePass = async (row: any) => {
       try {
-        await pass({id: row.id, state: 1});
+        await pass({ id: row.id, state: 1 });
         ElMessage({
           type: 'success',
           message: '操作成功'
@@ -146,7 +154,7 @@ export default defineComponent({
 
     const handleUnPass = async (row: any) => {
       try {
-        await pass({id: row.id, state: 2});
+        await pass({ id: row.id, state: 2 });
         ElMessage({
           type: 'success',
           message: '已拒绝该授权请求'
@@ -162,6 +170,40 @@ export default defineComponent({
     }
 
     const handleImport = () => {
+      visible.value = true;
+    }
+
+    const beforeUpload = (file: any) => {
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isLt2M) {
+        ElMessage.error("上传文件大小不能超过 2MB!");
+        return false;
+      }
+    }
+
+    const uploadChange = async (file: any) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const result: any = await importAuthorizeTemp(formData);
+        if( result.code === 0) {
+          ElMessage.success("导入成功");
+        }
+      } catch (error) {
+        ElMessage.error("出错啦");
+      }
+      visible.value = false;
+      getTableData(true);
+    }
+    const handleFileUpload = async (params: { file: any; }) => {
+      return uploadChange(params.file);
+    }
+
+    const handleDownloadFile = async () => {
+      const result:any = await downloadFile({fileId: 1});
+      if(result.code === 0) {
+        window.open(result.fileUrl)
+      }
     }
     getTableData(true)
     return {
@@ -174,6 +216,7 @@ export default defineComponent({
       loading,
       page,
       layer,
+      visible,
       handleSelectionChange,
       getTableData,
       handleDownload,
@@ -181,6 +224,9 @@ export default defineComponent({
       handlePass,
       handleImport,
       handleUnPass,
+      beforeUpload,
+      handleFileUpload,
+      handleDownloadFile
     };
   }
 });
@@ -190,7 +236,8 @@ export default defineComponent({
 .statusName {
   margin-right: 10px;
 }
-.search{
+
+.search {
   display: flex;
   flex-direction: row;
   justify-content: center;
