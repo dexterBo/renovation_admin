@@ -8,7 +8,6 @@
  */
 import { ConfigEnv, UserConfigExport } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { viteMockServe } from 'vite-plugin-mock'
 import {vitePluginSvg} from "@webxrd/vite-plugin-svg"
 import { resolve } from 'path'
 
@@ -21,7 +20,6 @@ const pathResolve = (dir: string): any => {
  * @description-cn vite官网
  * https://vitejs.cn/config/ */
 export default ({ command }: ConfigEnv): UserConfigExport => {
-  const prodMock = true;
   return {
     base: './',
     resolve: {
@@ -52,17 +50,6 @@ export default ({ command }: ConfigEnv): UserConfigExport => {
     },
     plugins: [
       vue(),
-      viteMockServe({
-        mockPath: 'mock',
-        localEnabled: command === 'serve',
-        prodEnabled: command !== 'serve' && prodMock,
-        watchFiles: true,
-        injectCode: `
-          import { setupProdMockServer } from '../mockProdServer';
-          setupProdMockServer();
-        `,
-        logger: true,
-      }),
       vitePluginSvg({
         // 必要的。必须是绝对路径组成的数组。
         iconDirs: [

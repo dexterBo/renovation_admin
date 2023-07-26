@@ -37,6 +37,7 @@ export class Upload {
         const observable = Qiniu.upload(file, key, token, putExtra, config);
         const observer = {
           error(err: any) {
+            console.log(err);
             resolve(err);
           },
           complete(res: { key: string; }) {

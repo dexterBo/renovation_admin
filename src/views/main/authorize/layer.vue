@@ -55,7 +55,6 @@ import Layer from '@/components/layer/index.vue'
 import { getAuthorizeList, pass, add } from "@/api/authorize";
 import { getColorList } from "@/api/color";
 import { ElMessage } from 'element-plus'
-import { tr } from 'element-plus/lib/locale';
 export default defineComponent({
   components: {
     Layer
