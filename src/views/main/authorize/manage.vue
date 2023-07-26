@@ -103,7 +103,7 @@ export default defineComponent({
         tableData.value = result?.page?.records
         page.total = Number(result?.page?.total);
         page.index = result?.page?.current;
-        page.total = result?.page?.size;
+        page.size = result?.page?.size;
       } catch (error) {
         tableData.value = [];
         page.index = 1;
