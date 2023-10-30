@@ -37,8 +37,25 @@
           <el-button type="text" @click="handlePDFReload">重新上传</el-button>
         </div>
       </el-form-item>
-      <el-form-item label="产品编码" prop="prodCode">
+      <el-form-item label="产品编码：" prop="prodCode">
         <el-input v-model="ruleForm.prodCode" placeholder="请输入产品编码" />
+      </el-form-item>
+      <el-form-item label="产品颜色" prop="colour">
+        <el-select class="w220" v-model="ruleForm.colour" placeholder="请选择产品颜色">
+          <el-option v-for="option in options3" :key="option.value" :label="option.label" :value="option.value"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="经销商：" prop="dealer">
+        <el-input v-model="ruleForm.dealer" placeholder="请输入经销商" />
+      </el-form-item>
+      <el-form-item label="产品材质：" prop="material">
+        <el-input v-model="ruleForm.material" placeholder="请输入产品材质" />
+      </el-form-item>
+      <el-form-item label="产品尺寸：" prop="size">
+        <el-input v-model="ruleForm.size" placeholder="请输入产品尺寸" />
+      </el-form-item>
+      <el-form-item label="联系电话：" prop="phone">
+        <el-input v-model="ruleForm.phone" placeholder="请输入联系电话" />
       </el-form-item>
     </el-form>
   </Layer>
@@ -50,6 +67,7 @@ import Layer from '@/components/layer/index.vue'
 import { addOrEdit } from "@/api/product";
 import { ElMessage } from 'element-plus'
 import { Upload } from '@/utils/upload';
+import { getColorList } from '@/api/color';
 export default defineComponent({
   components: {
     Layer
@@ -76,6 +94,11 @@ export default defineComponent({
       jumpType: undefined,
       jumpUrl: "",
       prodCode: "",
+      colour: '',
+      dealer: '',
+      material: '',
+      size: '',
+      phone: '',
     })
     if (props.layer.row) {
       ruleForm = reactive({ ...props.layer.row })
@@ -86,6 +109,11 @@ export default defineComponent({
       jumpType: [{ required: true, message: '请选择跳转方式', trigger: 'blur' }],
       jumpUrl: [{ required: true, message: '请输入跳转链接', trigger: 'blur' }],
       prodCode: [{ required: true, message: '请输入产品编号', trigger: 'blur' }],
+      colour: [{ required: true, message: '请选择产品颜色', trigger: 'blur' }],
+      dealer: [{ required: true, message: '请输入产品经销商', trigger: 'blur' }],
+      material: [{ required: true, message: '请输入产品材质', trigger: 'blur' }],
+      size: [{ required: true, message: '请输入产品尺寸', trigger: 'blur' }],
+      phone: [{ required: true, message: '请输入联系电话', trigger: 'blur' }],
     }
 
     const submit = () => {
@@ -160,11 +188,22 @@ export default defineComponent({
       ruleForm.jumpUrl = '';
     }
 
+    const options3 = ref<any>([]);
+
+    const getColors = async () => {
+      const result: any = await getColorList({ current: 1, size: 999 });
+      options3.value = result?.page?.records.map((item: any) => ({
+        label: item.colourName,
+        value: item.id
+      }))
+    }
+    getColors();
     return {
       ruleForm,
       rules,
       uploadDom,
       form,
+      options3,
       handleReload,
       handleFileUpload,
       handlePDFReload,

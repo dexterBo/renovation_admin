@@ -2,41 +2,71 @@
   <div class="layout-container">
     <div class="layout-container-form flex space-between">
       <div class="layout-container-form-handle">
-        <el-button type="primary" :icon="Plus" @click="handleAdd">新增</el-button>
+        <el-button type="primary" :icon="Plus" @click="handleAdd"
+          >新增</el-button
+        >
       </div>
       <div class="layout-container-form-search">
-        <el-button type="primary" class="search-btn" @click="handleImport">导入</el-button>
+        <el-button type="primary" class="search-btn" @click="handleImport"
+          >导入</el-button
+        >
       </div>
     </div>
     <div class="layout-container-table">
-      <Table ref="table" v-model:page="page" v-loading="loading" :showSelection="true" :data="tableData"
-        @getTableData="getTableData" @selection-change="handleSelectionChange">
+      <Table
+        ref="table"
+        v-model:page="page"
+        v-loading="loading"
+        :showSelection="true"
+        :data="tableData"
+        @getTableData="getTableData"
+        @selection-change="handleSelectionChange"
+      >
         <el-table-column prop="id" label="序号" align="center" width="80" />
-        <el-table-column prop="prodImgUrl" label="产品主图" align="center">
+        <el-table-column prop="prodImgUrl" label="产品主图" align="center" width="150" :show-overflow-tooltip="false">
           <template #default="scope">
-            <el-image style="width: 100px; height: 100px" :src="scope.row.prodImgUrl"></el-image>
+            <el-image
+              style="width: 100px; height: 100px"
+              :src="scope.row.prodImgUrl"
+            ></el-image>
           </template>
         </el-table-column>
-        <el-table-column prop="prodName" label="产品名称" align="center" />
-        <el-table-column prop="jumpType" label="跳转方式" align="center">
+        <el-table-column prop="prodName" label="产品名称" align="center" width="150"/>
+        <el-table-column prop="jumpType" label="跳转方式" align="center" width="150" >
           <template #default="scope">
-            {{ scope.row.jumpType === 2 ? '公众号链接' : 'PDF文件' }}
-          </template>
-        </el-table-column>>
-        <el-table-column prop="prodCode" label="产品编码" align="center" />
-        <el-table-column prop="createTime" label="创建时间" align="center" />
-        <el-table-column label="产品二维码" align="center" fixed="right" width="200">
+            {{ scope.row.jumpType === 2 ? "公众号链接" : "PDF文件" }}
+          </template> </el-table-column
+        >>
+        <el-table-column prop="prodCode" label="产品编码" align="center" width="150" />
+        <el-table-column prop="colour" label="产品颜色" align="center" width="100" />
+        <el-table-column prop="dealer" label="经销商" align="center" width="150" />
+        <el-table-column prop="material" label="产品材质" align="center" width="150" />
+        <el-table-column prop="size" label="产品尺寸" align="center" width="150" />
+        <el-table-column prop="phone" label="联系电话" align="center" width="150" />
+        <el-table-column prop="createTime" label="创建时间" align="center" width="155" />
+        <el-table-column
+          label="产品二维码"
+          align="center"
+          fixed="right"
+          width="100"
+        >
           <template #default="scope">
-            <el-button type="text" @click="handleDownload(scope.row)">下载</el-button>
+            <el-button type="text" @click="handleDownload(scope.row)"
+              >下载</el-button
+            >
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center" fixed="right" width="200">
+        <el-table-column label="操作" align="center" fixed="right" width="100">
           <template #default="scope">
             <el-button @click="handleEdit(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
       </Table>
-      <Layer :layer="layer" @getTableData="getTableData(true)" v-if="layer.show" />
+      <Layer
+        :layer="layer"
+        @getTableData="getTableData(true)"
+        v-if="layer.show"
+      />
     </div>
   </div>
 </template>
@@ -48,7 +78,7 @@ import { getProductList } from "@/api/product";
 import { LayerInterface } from "@/components/layer/index.vue";
 import Layer from "./layer.vue";
 import Table from "@/components/table/index.vue";
-import { Plus, Delete, Search } from '@element-plus/icons'
+import { Plus, Delete, Search } from "@element-plus/icons";
 export default defineComponent({
   components: {
     Table,
@@ -80,18 +110,18 @@ export default defineComponent({
     // 获取表格数据
     // params <init> Boolean ，默认为false，用于判断是否需要初始化分页
     const getTableData = async (init: Boolean) => {
-      loading.value = true
+      loading.value = true;
       if (init) {
-        page.index = 1
+        page.index = 1;
       }
       let params = {
         current: page.index,
         size: page.size,
-        ...query
-      }
+        ...query,
+      };
       try {
         const result: any = await getProductList(params);
-        tableData.value = result?.page?.records
+        tableData.value = result?.page?.records;
         page.total = Number(result?.page?.total);
         page.index = result?.page?.current;
         page.size = result?.page?.size;
@@ -102,29 +132,27 @@ export default defineComponent({
       } finally {
         loading.value = false;
       }
-    }
+    };
 
     const handleDownload = (row: any) => {
       if (row.prodQrcodeUrl) {
-        window.open(row.prodQrcodeUrl)
+        window.open(row.prodQrcodeUrl);
       }
-    }
+    };
     // 新增弹窗功能
     const handleAdd = () => {
       layer.title = "新增产品";
       layer.show = true;
       delete layer.row;
-    }
+    };
     // 编辑弹窗功能
     const handleEdit = (row: any) => {
       layer.title = "编辑产品";
       layer.row = row;
       layer.show = true;
-    }
-    const handleImport = () => {
-
-    }
-    getTableData(true)
+    };
+    const handleImport = () => {};
+    getTableData(true);
     return {
       Plus,
       Delete,
@@ -142,7 +170,7 @@ export default defineComponent({
       handleEdit,
       handleImport,
     };
-  }
+  },
 });
 </script>
 
